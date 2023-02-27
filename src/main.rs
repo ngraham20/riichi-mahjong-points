@@ -23,11 +23,47 @@ fn main() {
     hand.insert(Tile::from("p8"));
 
     println!("{:?}", hand);
+
+    let ts: GroupScore = GroupScore {
+        open: false,
+        tiles: vec![Tile::from("we"); 3]
+    };
+
+    println!("is this honors? {}", ts.is_orphan());
 }
 
 #[derive(Debug)]
 struct Hand {
-    tiles: HashMap<Tile, usize>,
+    tiles: HashMap<Tile, usize>
+}
+
+struct GroupScore {
+    open: bool,
+    tiles: Vec<Tile>,
+}
+
+impl GroupScore {
+    fn is_orphan(&self) -> bool {
+        let honors: Vec<&Tile> = self.tiles.iter().filter(|x| match x {
+            Tile::Dragon(_) => true,
+            Tile::Wind(_) => true,
+            Tile::Man(tile) |
+            Tile::Pin(tile) |
+            Tile::Sou(tile) => matches!(tile, Number::One) || matches!(tile, Number::Nine),
+        }).collect();
+        !honors.is_empty()
+    }
+}
+
+struct ScoreHand {
+    primary: [TileGroup; 4],
+    pair: (Tile, Tile),
+}
+
+enum TileGroup {
+    Triplet(Tile),
+    Quad(Tile, Tile, Tile, Tile),
+    Run(Tile, Tile, Tile),
 }
 
 impl Hand {
