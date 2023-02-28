@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::error::Error;
 
 use crate::tile::Tile;
 use crate::tile::suits::*;
@@ -11,11 +11,12 @@ pub struct Hand {
     pub man: Vec<Tile>,
     pub pin: Vec<Tile>,
     pub sou: Vec<Tile>,
+    pub groups: usize,
+    pub pairs: usize,
 }
 
 impl Hand {
-    pub fn insert(&mut self, tile: Tile) {
-        // *self.tiles.entry(tile).or_insert(0) += 1;
+    pub fn draw(&mut self, tile: Tile) {
         match tile {
             Tile::Dragon(_) => {self.dragons.push(tile)},
             Tile::Wind(_) => {self.winds.push(tile)},
@@ -25,9 +26,53 @@ impl Hand {
         }
     }
 
+    pub fn is_winning(&mut self) -> bool {
+
+
+        false
+    }
+
+    /// Returns of number of groups and if a pair is present (groups, pair)
+    /// returns Error if more than one pair is present
+    pub fn dragon_groups(&mut self) {
+        let mut sizes = vec![0; 3];
+        sizes[0] = self.dragons.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::White))).count();
+        sizes[1] = self.dragons.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::Green))).count();
+        sizes[2] = self.dragons.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::Red))).count();
+
+        Hand::get_pairs_groups(sizes);
+    }
+
+    fn get_pairs_groups(sizes: Vec<usize>) -> Result<[usize; 2], Box<dyn Error>> {
+        let mut pairs = 0usize;
+        let mut groups = 0usize;
+        for size in sizes {
+            match size {
+                0 => {},
+                1 => { return Err("Honors cannot be single tiles")? },
+                2 => { pairs += 1 },
+                3 => { groups += 1 },
+                4 => { groups += 1},
+                _ => { return Err("There cannot be more than four of any given tile")?},
+            };
+        }
+
+        if pairs > 1 { Err("More than one pair is not allowed")?} else { Ok([groups, pairs]) }
+    }
+
+    pub fn wind_groups(&self) -> Result<[usize; 2], Box<dyn Error>> {
+        let mut sizes= vec![0; 4];
+        sizes[0] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::East))).count();
+        sizes[1] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::South))).count();
+        sizes[2] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::West))).count();
+        sizes[3] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::North))).count();
+
+        Hand::get_pairs_groups(sizes)
+    }
+
     pub fn draw_from_wall(&mut self, wall: &mut Wall) {
         if let Some(tile) = wall.tiles.pop_front() {
-            self.insert(tile);
+            self.draw(tile);
         }
     }
 }
