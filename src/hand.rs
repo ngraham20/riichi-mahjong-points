@@ -6,12 +6,23 @@ use crate::wall::Wall;
 
 #[derive(Debug)]
 pub struct Hand {
-    pub tiles: HashMap<Tile, usize>
+    pub dragons: Vec<Tile>,
+    pub winds: Vec<Tile>,
+    pub man: Vec<Tile>,
+    pub pin: Vec<Tile>,
+    pub sou: Vec<Tile>,
 }
 
 impl Hand {
     pub fn insert(&mut self, tile: Tile) {
-        *self.tiles.entry(tile).or_insert(0) += 1;
+        // *self.tiles.entry(tile).or_insert(0) += 1;
+        match tile {
+            Tile::Dragon(_) => {self.dragons.push(tile)},
+            Tile::Wind(_) => {self.winds.push(tile)},
+            Tile::Man(_) => {self.man.push(tile)},
+            Tile::Pin(_) => {self.pin.push(tile)},
+            Tile::Sou(_) => {self.sou.push(tile)},
+        }
     }
 
     pub fn draw_from_wall(&mut self, wall: &mut Wall) {
