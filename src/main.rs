@@ -82,20 +82,22 @@ fn valid_nums(nums: Vec<usize>) -> bool {
         let mut countsforpair = counts;
         let mut removals: Vec<Vec<usize>> = Vec::new();
         if countsforpair[p-1] > 1 {
-            println!("Pair: {}", p);
+            println!("Pair: {} {}", p, p);
             countsforpair[p-1] -= 2;
             removals.push(vec![p; 2]);
+        } else {
+            println!("Pair {} {} does not work. Generating groups regardless.", p, p);
         }
 
         let mut idx = 0usize;
-        println!("Starting counts: {:?}", countsforpair);
+
         while idx < 9 {
             match countsforpair[idx] {
                 0 => { idx += 1; },
                 1 | 2 => { 
                     if idx + 1 < 9 && countsforpair[idx + 1] > 0 &&
                     idx + 2 < 9 && countsforpair[idx + 2] > 0 {
-                        println!("removing: {} {} {}", idx + 1, idx + 2, idx  +3);
+                        println!("Run: {} {} {}", idx + 1, idx + 2, idx  +3);
                         countsforpair[idx]     -= 1;
                         countsforpair[idx + 1] -= 1;
                         countsforpair[idx + 2] -= 1;
@@ -103,9 +105,9 @@ fn valid_nums(nums: Vec<usize>) -> bool {
                     } else { break; }
                 }
                 3.. => {
-                    println!("Removing: {} {} {}",idx + 1, idx + 1, idx + 1);
-                    removals.push(vec![idx + 1; 3]);
-                    countsforpair[idx] -= 3;
+                    println!("Set: {:?}", vec![idx + 1; countsforpair[idx]]);
+                    removals.push(vec![idx + 1; countsforpair[idx]]);
+                    countsforpair[idx] -= countsforpair[idx];
                 },
                 _ => unreachable!()
             };
