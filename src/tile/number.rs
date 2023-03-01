@@ -17,6 +17,20 @@ impl Number {
             tile: Number::One,
         }
     }
+
+    pub fn value(&self) -> usize {
+        match self {
+            Number::One => 1,
+            Number::Two => 2,
+            Number::Three => 3,
+            Number::Four => 4,
+            Number::Five => 5,
+            Number::Six => 6,
+            Number::Seven => 7,
+            Number::Eight => 8,
+            Number::Nine => 9,
+        }
+    }
 }
 
 impl From<char> for Number {

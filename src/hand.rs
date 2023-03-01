@@ -6,24 +6,14 @@ use crate::wall::Wall;
 
 #[derive(Debug)]
 pub struct Hand {
-    pub dragons: Vec<Tile>,
-    pub winds: Vec<Tile>,
-    pub man: Vec<Tile>,
-    pub pin: Vec<Tile>,
-    pub sou: Vec<Tile>,
+    pub tiles: Vec<Tile>,
     pub groups: usize,
     pub pairs: usize,
 }
 
 impl Hand {
     pub fn draw(&mut self, tile: Tile) {
-        match tile {
-            Tile::Dragon(_) => {self.dragons.push(tile)},
-            Tile::Wind(_) => {self.winds.push(tile)},
-            Tile::Man(_) => {self.man.push(tile)},
-            Tile::Pin(_) => {self.pin.push(tile)},
-            Tile::Sou(_) => {self.sou.push(tile)},
-        }
+        self.tiles.push(tile);
     }
 
     pub fn is_winning(&mut self) -> bool {
@@ -32,13 +22,18 @@ impl Hand {
         false
     }
 
+    fn number_groups(numbers: Vec<Number>) {
+        // let values: Vec<usize> = numbers.into_iter().map(|x| x = x.value()).collect();
+
+    }
+
     /// Returns of number of groups and if a pair is present (groups, pair)
     /// returns Error if more than one pair is present
     pub fn dragon_groups(&mut self) {
         let mut sizes = vec![0; 3];
-        sizes[0] = self.dragons.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::White))).count();
-        sizes[1] = self.dragons.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::Green))).count();
-        sizes[2] = self.dragons.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::Red))).count();
+        sizes[0] = self.tiles.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::White))).count();
+        sizes[1] = self.tiles.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::Green))).count();
+        sizes[2] = self.tiles.iter().filter(|&t| matches!(t, Tile::Dragon(Dragon::Red))).count();
 
         Hand::get_pairs_groups(sizes);
     }
@@ -62,10 +57,10 @@ impl Hand {
 
     pub fn wind_groups(&self) -> Result<[usize; 2], Box<dyn Error>> {
         let mut sizes= vec![0; 4];
-        sizes[0] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::East))).count();
-        sizes[1] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::South))).count();
-        sizes[2] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::West))).count();
-        sizes[3] = self.winds.iter().filter(|&w| matches!(w, Tile::Wind(Wind::North))).count();
+        sizes[0] = self.tiles.iter().filter(|&w| matches!(w, Tile::Wind(Wind::East))).count();
+        sizes[1] = self.tiles.iter().filter(|&w| matches!(w, Tile::Wind(Wind::South))).count();
+        sizes[2] = self.tiles.iter().filter(|&w| matches!(w, Tile::Wind(Wind::West))).count();
+        sizes[3] = self.tiles.iter().filter(|&w| matches!(w, Tile::Wind(Wind::North))).count();
 
         Hand::get_pairs_groups(sizes)
     }
