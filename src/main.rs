@@ -1,123 +1,156 @@
-use std::{collections::HashMap, error::Error};
-use itertools::Itertools;
-
-mod hand;
 mod tile;
-mod wall;
-use hand::*;
-use tile::*;
 
-fn main() -> Result<(), Box<dyn Error>> {
-    // let mut hand = Hand {
-    //     tiles: HashMap::new(),
-    // };
+fn main() {
+    let tiles: Vec<usize> = vec![1,2,3,1,2,3,1,2,3];
 
-    // let mut hand = Hand {
-    //     dragons: Vec::new(),
-    //     winds: Vec::new(),
-    //     man: Vec::new(),
-    //     pin: Vec::new(),
-    //     sou: Vec::new(),
-    //     groups: 0,
-    //     pairs: 0,
-    // };
+    find_number_groups(tiles);
+    // QUADS ARE ALWAYS CALLED. If tile count is 15, there's one quad, 16 2 quads, etc.
 
-    // hand.draw(Tile::from("m4"));
-    // hand.draw(Tile::from("m5"));
-    // hand.draw(Tile::from("m6"));
-    // hand.draw(Tile::from("p5"));
-    // hand.draw(Tile::from("p6"));
-    // hand.draw(Tile::from("p7"));
-    // hand.draw(Tile::from("p8"));
-    // hand.draw(Tile::from("dw"));
-    // hand.draw(Tile::from("dw"));
-    // hand.draw(Tile::from("dw"));
-    // hand.draw(Tile::from("dg"));
-    // hand.draw(Tile::from("dg"));
-    // // hand.draw(Tile::from("dg"));
-    // hand.draw(Tile::from("p8"));
-    // hand.draw(Tile::from("we"));
-    // hand.draw(Tile::from("we"));
-
-    // let mut grouppair = [0usize, 0usize];
-    // for (idx, gp) in grouppair.iter_mut().enumerate() {
-    //     *gp += hand.dragon_groups()?[idx];
-    //     *gp += hand.wind_groups()?[idx];
-    // }
-
-    // println!("groups: {}, pairs: {}", grouppair[0], grouppair[1]);
-    // let testhand = vec![1,2,3,4,5,5,5,5,6,7,8,9,9,9];
-    // println!("hand is valid: {}", valid_nums(testhand));
-
-    // let test2 = vec![1,1,2,2,4,4,5,5,6,7,8,9];
-    // println!("hand is valid: {}", valid_nums(test2));
-
-    let test3 = vec![1,1,2,2,3,3,7,8,8,8,8,9,9,9];
-    println!("hand is valid: {}", valid_nums(test3));
-
-    Ok(())
 }
 
-fn valid_nums(nums: Vec<usize>) -> bool {
-    let total: usize = nums.iter().sum();
-    let pairvals: [usize; 3] = match total % 3 {
-        0 => [3, 6, 9],
-        1 => [2, 5, 8],
-        2 => [1, 4, 7],
+fn find_number_groups(tiles: Vec<usize>) {
+    let count: usize = tiles.iter().sum();
+    println!("sum: {}", count);
+    let pairs = pairs(count);
+    println!("pairs: {:?}", pairs);
+
+    for pair in pairs {
+        println!("-----");
+        let mut counts = get_counts(&tiles);
+        let mut trigrams: Vec<Vec<usize>> = Vec::new();
+        if pair > 0 {
+            if let Some(pair) = get_pair(&mut counts, pair - 1) {
+                println!("Pair: {:?}", pair);
+                trigrams.push(pair);
+            }
+        }
+        // TODO: walk trigrams, then sets first, then runs first
+        
+        println!("Leftovers: {:?}", counts);
+    }
+}
+
+fn walk_trigrams(counts: &mut [usize; 9]) -> Option<Vec<Vec<usize>>> {
+    let mut trigrams: Vec<Vec<usize>> = Vec::new();
+    let mut index = 0usize;
+
+    while index < 9 {
+        let set = get_set(counts, index);
+        match set {
+            Some(trigram) => { 
+                println!("trigram: {:?}", trigram); 
+                trigrams.push(trigram);
+            }
+            None => {},
+        };
+
+        let run = get_run(counts, index);
+        match run {
+            Some(trigram) => { 
+                println!("trigram: {:?}", trigram); 
+                trigrams.push(trigram);
+            }
+            None => { index += 1; },
+        }
+    }
+    if trigrams.len() > 0 {
+        Some(trigrams)
+    } else { None }
+    
+}
+
+fn find_runs(counts: &mut [usize; 9]) -> Option<Vec<Vec<usize>>> {
+    let mut index = 0usize;
+    let mut runs: Vec<Vec<usize>> = Vec::new();
+    while index < 9 {
+        let run = get_run(counts, index);
+        match run {
+            Some(run) => { 
+                println!("Run: {:?}", run); 
+                runs.push(run);
+            }
+            None => { index += 1; },
+        };
+    }
+    if runs.len() > 0 {
+        Some(runs)
+    } else { None }
+}
+
+fn find_sets(counts: &mut [usize; 9]) -> Option<Vec<Vec<usize>>> {
+    let mut index = 0usize;
+    let mut sets: Vec<Vec<usize>> = Vec::new();
+    while index < 9 {
+        let set = get_set(counts, index);
+        match set {
+            Some(set) => { 
+                println!("Set: {:?}", set);
+                sets.push(set);
+            },
+            None => { index += 1; },
+        };
+    }
+
+    if sets.len() > 0 {
+        Some(sets)
+    } else { None }
+}
+
+fn pairs(tilesum: usize) -> Vec<usize> {
+    match tilesum % 3 {
+        0 => vec![3, 6, 9],
+        1 => vec![2, 5, 8],
+        2 => vec![1, 4, 7],
         _ => unreachable!()
-    };
+    }
+}
 
-    println!("The pairs for this hand could be: {:?}", pairvals);
-
+fn get_counts(tiles: &Vec<usize>) -> [usize; 9] {
     let mut counts: [usize; 9] = [0; 9];
-    for val in nums.iter() {
+    for val in tiles.iter() {
         if *val <= 9 {
             counts[*val - 1] += 1;
         }
     }
 
-    let mut valid_combinations = 0usize;
+    counts
+}
 
-    for p in pairvals {
-        let mut countsforpair = counts;
-        let mut removals: Vec<Vec<usize>> = Vec::new();
-        if countsforpair[p-1] > 1 {
-            println!("Pair: {} {}", p, p);
-            countsforpair[p-1] -= 2;
-            removals.push(vec![p; 2]);
-        } else {
-            println!("Pair {} {} does not work. Generating groups regardless.", p, p);
-        }
+fn get_pair(counts: &mut [usize; 9], index: usize) -> Option<Vec<usize>> {
+    if counts[index] >= 2 {
+        counts[index] -= 2;
+        Some(vec![index + 1; 2])
+    } else { None }
+}
 
-        let mut idx = 0usize;
+fn get_quad(counts: &mut[usize; 9], index: usize) -> Option<Vec<usize>> {
+    if counts[index] == 4 {
+        counts[index] -= 4;
+        Some(vec![index + 1; 4])
+    } else { None }
+}
 
-        while idx < 9 {
-            match countsforpair[idx] {
-                0 => { idx += 1; },
-                1 | 2 => { 
-                    if idx + 1 < 9 && countsforpair[idx + 1] > 0 &&
-                    idx + 2 < 9 && countsforpair[idx + 2] > 0 {
-                        println!("Run: {} {} {}", idx + 1, idx + 2, idx  +3);
-                        countsforpair[idx]     -= 1;
-                        countsforpair[idx + 1] -= 1;
-                        countsforpair[idx + 2] -= 1;
-                        removals.push(vec![idx + 1, idx + 2, idx + 3]);
-                    } else { break; }
-                }
-                3.. => {
-                    println!("Set: {:?}", vec![idx + 1; countsforpair[idx]]);
-                    removals.push(vec![idx + 1; countsforpair[idx]]);
-                    countsforpair[idx] -= countsforpair[idx];
-                },
-                _ => unreachable!()
-            };
-        }
-        if countsforpair.iter().sum::<usize>() == 0 {
-            valid_combinations += 1;
-        }
-        println!("Groups: {:?}", removals);
+fn get_set(counts: &mut [usize; 9], index: usize) -> Option<Vec<usize>> {
+    if counts[index] >= 3 {
+        counts[index] -= 3;
+        Some(vec![index + 1; 3])
+    } else { None }
+}
+
+fn get_run(counts: &mut [usize; 9], index: usize) -> Option<Vec<usize>> {
+    if counts[index] == 0 {
+        return None;
     }
-    println!("Valid tile combinations: {}", valid_combinations);
 
-    false
+    if index + 1 >= 9 || index + 2 >= 9 {
+        return None;
+    }
+
+    if counts[index+1] == 0 || counts[index + 2] == 0 {
+        return None;
+    }
+    counts[index] -= 1;
+    counts[index + 1] -= 1;
+    counts[index + 2] -= 1;
+    Some(vec![index + 1, index + 2, index + 3])
 }

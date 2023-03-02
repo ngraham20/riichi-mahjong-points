@@ -12,12 +12,6 @@ pub enum Number {
 }
 
 impl Number {
-    pub fn iter() -> NumberIter {
-        NumberIter {
-            tile: Number::One,
-        }
-    }
-
     pub fn value(&self) -> usize {
         match self {
             Number::One => 1,
@@ -47,30 +41,5 @@ impl From<char> for Number {
             '9' => Number::Nine,
             _ => { panic!("Invalid Char Pattern"); }
         }
-    }
-}
-
-pub struct NumberIter {
-    tile: Number,
-}
-
-impl Iterator for NumberIter {
-    type Item = Number;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        let current = self.tile;
-        self.tile = match self.tile {
-            Number::One => Number::Two,
-            Number::Two => Number::Three,
-            Number::Three => Number::Four,
-            Number::Four => Number::Five,
-            Number::Five => Number::Six,
-            Number::Six => Number::Seven,
-            Number::Seven => Number::Eight,
-            Number::Eight => Number::Nine,
-            Number::Nine => Number::One
-        };
-
-        Some(current)
     }
 }

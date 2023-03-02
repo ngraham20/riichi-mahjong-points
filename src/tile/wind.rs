@@ -6,14 +6,6 @@ pub enum Wind {
     North,
 }
 
-impl Wind {
-    pub fn iter() -> WindIter {
-        WindIter {
-            tile: Wind::East,
-        }
-    }
-}
-
 impl From<char> for Wind {
     fn from(item: char) -> Self {
         match item {
@@ -23,24 +15,5 @@ impl From<char> for Wind {
             'n' | 'N' => Wind::North,
             _ => { panic!("Invalid Char Pattern"); }
         }
-    }
-}
-
-pub struct WindIter {
-    tile: Wind,
-}
-
-impl Iterator for WindIter {
-    type Item = Wind;
-    fn next(&mut self) -> Option<Self::Item> {
-        let current = self.tile;
-        self.tile = match self.tile {
-            Wind::East => Wind::South,
-            Wind::South => Wind::West,
-            Wind::West => Wind::North,
-            Wind::North => Wind::East,
-        };
-
-        Some(current)
     }
 }

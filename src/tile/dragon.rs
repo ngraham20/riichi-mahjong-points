@@ -5,12 +5,6 @@ pub enum Dragon {
     Red,
 }
 
-impl Dragon {
-    pub fn iter() -> DragonIter {
-        DragonIter { tile: Dragon::Green }
-    }
-}
-
 impl From<char> for Dragon {
     fn from(item: char) -> Self {
         match item {
