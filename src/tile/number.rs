@@ -1,3 +1,5 @@
+use std::ops;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Number {
     One,
@@ -40,6 +42,23 @@ impl From<char> for Number {
             '8' => Number::Eight,
             '9' => Number::Nine,
             _ => { panic!("Invalid Char Pattern"); }
+        }
+    }
+}
+
+impl From<usize> for Number {
+    fn from(item: usize) -> Self {
+        match item {
+            1 => Number::One,
+            2 => Number::Two,
+            3 => Number::Three,
+            4 => Number::Four,
+            5 => Number::Five,
+            6 => Number::Six,
+            7 => Number::Seven,
+            8 => Number::Eight,
+            9 => Number::Nine,
+            _ => { panic!("Invalid Integer Pattern"); }
         }
     }
 }

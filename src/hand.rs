@@ -6,9 +6,8 @@ use crate::wall::Wall;
 
 #[derive(Debug)]
 pub struct Hand {
-    pub tiles: Vec<Tile>,
-    pub groups: usize,
-    pub pairs: usize,
+    pub open: Vec<Vec<Tile>>,
+    pub closed: Vec<Tile>,
 }
 
 impl Hand {

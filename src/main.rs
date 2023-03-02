@@ -1,11 +1,12 @@
 mod tile;
+use tile::suits::*;
 
 fn main() {
-    let tiles: Vec<usize> = vec![1,2,3,1,2,3,1,2,3];
+    let tiles: Vec<usize> = vec![1,2,3,4,4,4,3,4,5];
 
     find_number_groups(tiles);
     // QUADS ARE ALWAYS CALLED. If tile count is 15, there's one quad, 16 2 quads, etc.
-
+    
 }
 
 fn find_number_groups(tiles: Vec<usize>) {
@@ -24,9 +25,23 @@ fn find_number_groups(tiles: Vec<usize>) {
                 trigrams.push(pair);
             }
         }
-        // TODO: walk trigrams, then sets first, then runs first
+
+        let mut tricounts = counts;
+        let mut setscounts = counts;
+        let mut runscounts = counts;
+
+        if let Some(_) = walk_trigrams(&mut tricounts) {
+            println!("tricounts Leftovers: {:?}", tricounts);
+        }
+
+        find_sets(&mut setscounts);
+        find_runs(&mut setscounts);
+        println!("setscounts Leftovers: {:?}", setscounts);
+
         
-        println!("Leftovers: {:?}", counts);
+        find_runs(&mut runscounts);
+        find_sets(&mut runscounts);
+        println!("runscounts Leftovers: {:?}", runscounts);
     }
 }
 
