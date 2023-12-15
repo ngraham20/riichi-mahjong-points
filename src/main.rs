@@ -1,10 +1,11 @@
 mod tile;
+use tile::Tile;
 use tile::suits::*;
 
 fn main() {
-    let tiles: Vec<usize> = vec![1,2,3,4,4,4,3,4,5];
+    let nums: Vec<usize> = vec![1,2,3,4,4,4,3,4,5];
 
-    find_number_groups(tiles);
+    find_number_groups(nums);
     // QUADS ARE ALWAYS CALLED. If tile count is 15, there's one quad, 16 2 quads, etc.
     
 }
